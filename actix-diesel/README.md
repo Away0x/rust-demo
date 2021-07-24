@@ -10,4 +10,5 @@ diesel setup
 diesel migration generate products
 # 运行迁移
 diesel migration run
+diesel migration revert
 ```

@@ -3,6 +3,6 @@ table! {
         id -> Integer,
         name -> Text,
         title -> Text,
-        date_created -> Text,
+        data_created -> Text,
     }
 }
