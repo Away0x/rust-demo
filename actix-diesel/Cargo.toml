@@ -1,0 +1,23 @@
+[package]
+name = "actix-diesel"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# web framework https://crates.io/crates/actix-web
+actix-web = "3"
+# orm https://crates.io/crates/diesel
+diesel = {version = "1.4.5", features = ["sqlite", "r2d2"]} # r2d2 连接池
+# Serialize https://crates.io/crates/serde
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+# error https://crates.io/crates/anyhow
+anyhow = "1.0"
+# date time https://crates.io/crates/chrono
+chrono = "0.4.15"
+# 环境变量 https://crates.io/crates/dotenv
+dotenv = "0.15"
+
