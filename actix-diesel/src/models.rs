@@ -1,12 +1,12 @@
-use serde::{Deserialize, Serialize};
 use crate::schema::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Product {
     pub id: i32,
     pub name: String,
     pub title: String,
-    pub data_created: String
+    pub data_created: String,
 }
 
 #[derive(Debug, Insertable)]

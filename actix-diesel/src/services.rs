@@ -1,10 +1,10 @@
+use crate::models::{PostProduct, Product, ProductJson};
 use crate::Pool;
-use crate::models::{ProductJson, Product, PostProduct};
 
+use actix_web::web;
 use diesel::delete;
-use diesel::dsl::{insert_into};
+use diesel::dsl::insert_into;
 use diesel::prelude::*;
-use actix_web::{web};
 
 /**
  * add product
@@ -13,18 +13,19 @@ use actix_web::{web};
  */
 pub async fn add_single_product(
     pool: web::Data<Pool>,
-    item: web::Json<ProductJson>
+    item: web::Json<ProductJson>,
 ) -> anyhow::Result<Product, diesel::result::Error> {
     use crate::schema::product::dsl::*;
     let db_connection = pool.get().unwrap();
 
     match product
         .filter(name.eq(&item.name))
-        .first::<Product>(&db_connection) {
+        .first::<Product>(&db_connection)
+    {
         Ok(result) => Ok(result),
         Err(_) => {
             // 添加
-            let new_product = PostProduct{
+            let new_product = PostProduct {
                 name: &item.name,
                 title: &item.title,
                 data_created: &format!("{}", chrono::Local::now().naive_local()),
@@ -35,8 +36,7 @@ pub async fn add_single_product(
                 .execute(&db_connection)
                 .expect("Error saving new product");
 
-            let result = product.order(id.desc())
-                    .first(&db_connection).unwrap();
+            let result = product.order(id.desc()).first(&db_connection).unwrap();
 
             Ok(result)
         }
@@ -44,7 +44,7 @@ pub async fn add_single_product(
 }
 
 pub async fn get_all_product(
-    pool: web::Data<Pool>
+    pool: web::Data<Pool>,
 ) -> anyhow::Result<Vec<Product>, diesel::result::Error> {
     use crate::schema::product::dsl::*;
     let db_connection = pool.get().unwrap();
@@ -55,13 +55,14 @@ pub async fn get_all_product(
 
 pub async fn delete_product(
     pool: web::Data<Pool>,
-    path: web::Path<String>
+    path: web::Path<String>,
 ) -> anyhow::Result<usize, diesel::result::Error> {
     use crate::schema::product::dsl::*;
     let db_connection = pool.get().unwrap();
 
     let id_string = &path.0;
     let i: i32 = id_string.parse().unwrap();
+
     let result = delete(product.filter(id.eq(i))).execute(&db_connection)?;
     Ok(result)
 }
