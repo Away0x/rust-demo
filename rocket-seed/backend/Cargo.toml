@@ -6,6 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rocket_seed = { path = ".." }
 diesel = { version = "1.4.4", features = ["sqlite", "r2d2"] }
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 

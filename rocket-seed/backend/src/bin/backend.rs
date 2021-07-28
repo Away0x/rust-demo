@@ -1,18 +1,11 @@
-use rocket::{catch, catchers, get, routes};
-use rocket::serde::Serialize;
 use rocket::serde::json::{serde_json::json, Json, Value};
+use rocket::{catch, catchers, get, routes};
 
-use backend::db::models::Task;
-use backend::db::{query_task, establish_connection};
+use backend::db::{establish_connection, query_task};
+use rocket_seed::JsonApiResponse;
 
 #[rocket_sync_db_pools::database("sqlite_path")]
 struct DbConn(diesel::SqliteConnection);
-
-#[derive(Serialize)]
-#[serde(crate = "rocket::serde")]
-struct JsonApiResponse {
-    data: Vec<Task>,
-}
 
 #[catch(404)]
 fn not_found() -> Value {
@@ -25,18 +18,39 @@ fn not_found() -> Value {
 // 不使用 connection pool
 #[get("/tasks1")]
 fn tasks_get1() -> Json<JsonApiResponse> {
+    let mut response = JsonApiResponse { data: vec![], };
     let conn = establish_connection();
-    let tasks = query_task(&conn, None);
-    Json(JsonApiResponse { data: tasks })
+
+    for task in query_task(&conn, None) {
+        let api_task = rocket_seed::Task {
+            id: task.id,
+            title: task.title,
+            status: task.status,
+        };
+        response.data.push(api_task);
+    }
+    
+    Json(response)
 }
 
 // 使用 connection pool
 #[get("/tasks2")]
 async fn tasks_get2(conn: DbConn) -> Json<JsonApiResponse> {
     conn.run(|c| {
-        let tasks = query_task(c, None);
-        Json(JsonApiResponse { data: tasks })
-    }).await
+        let mut response = JsonApiResponse { data: vec![], };
+
+        for task in query_task(&c, None) {
+            let api_task = rocket_seed::Task {
+                id: task.id,
+                title: task.title,
+                status: task.status,
+            };
+            response.data.push(api_task);
+        }
+
+        Json(response)
+    })
+    .await
 }
 
 #[rocket::main]

@@ -1,3 +1,5 @@
+> https://erwabook.com/intro/index.html
+
 ```bash
 # 操作 sqlite
 
@@ -7,10 +9,14 @@ echo .dump | sqlite3 database.sqlite
 echo 'select * from task;' | sqlite3 database.sqlite
 ```
 ```bash
-# build
+# build package
 cargo build --all
 cargo build -p frontend
 cargo build -p backend
+
+# build wasm package
+cd frontend
+wasm-pack build --target web --out-name package --dev
 ```
 ```bash
 # bin
@@ -29,4 +35,8 @@ cargo run -p backend --bin todo delete "do the thing1"
 cargo run -p backend --bin backend
 # localhost:8000/tasks1
 # localhost:8000/tasks2
+# 启动前端 
+cd frontend
+cargo make watch
+cargo make serve
 ```

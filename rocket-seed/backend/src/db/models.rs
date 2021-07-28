@@ -1,5 +1,3 @@
-use rocket::serde::Serialize;
-
 use super::schema::task;
 
 #[derive(Insertable)]
@@ -8,8 +6,7 @@ pub struct NewTask<'a> {
     pub title: &'a str,
 }
 
-#[derive(Queryable, Serialize)]
-#[serde(crate = "rocket::serde")]
+#[derive(Queryable)]
 pub struct Task {
     pub id: i32,
     pub title: String,
