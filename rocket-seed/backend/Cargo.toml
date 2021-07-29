@@ -9,6 +9,7 @@ edition = "2018"
 rocket_seed = { path = ".." }
 diesel = { version = "1.4.4", features = ["sqlite", "r2d2"] }
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
+rocket_cors = { git = "https://github.com/lawliet89/rocket_cors.git", branch = "master" }
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.1"

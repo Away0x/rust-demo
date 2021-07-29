@@ -20,7 +20,6 @@ wasm-pack build --target web --out-name package --dev
 ```
 ```bash
 # bin
-
 # 插入数据
 cargo run -p backend --bin todo new "do the thing1"
 cargo run -p backend --bin todo new "do the thing2"
@@ -31,12 +30,16 @@ cargo run -p backend --bin todo show "do the thing1"
 cargo run -p backend --bin todo done "do the thing1"
 # 删除
 cargo run -p backend --bin todo delete "do the thing1"
-# 启动 server
+```
+```bash
+# 启动后端
 cargo run -p backend --bin backend
 # localhost:8000/tasks1
 # localhost:8000/tasks2
+
 # 启动前端 
 cd frontend
 cargo make watch
 cargo make serve
+# localhost:8001
 ```

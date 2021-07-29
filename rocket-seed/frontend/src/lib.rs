@@ -7,39 +7,35 @@ struct Model {
     tasks: Vec<Task>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 enum Msg {
-    FetchedTasks(Option<JsonApiResponse>),
+    FetchedTasks(fetch::Result<JsonApiResponse>),
 }
 
 fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
     match msg {
-        Msg::FetchedTasks(Some(mut result)) => {
+        Msg::FetchedTasks(Ok(mut result)) => {
             model.tasks.clear();
             model.tasks.append(&mut result.data);
         }
-        Msg::FetchedTasks(None) => {
-            model.tasks.clear();
-            // orders.skip();
-            model.tasks.append(&mut vec![
-                Task {
-                    id: 0,
-                    title: "Error".to_string(),
-                    status: 1,
-                }
-            ]);
+        Msg::FetchedTasks(Err(err)) => {
+            log!("Fetch err: {}", err);
+            orders.skip();
         }
     }
 }
 
-fn view(model: &Model) -> impl View<Msg> {
+fn view(model: &Model) -> Node<Msg> {
     let tasks: Vec<Node<Msg>> = model
         .tasks
         .iter()
-        .map(|t| li![{ t.title.clone() }])
+        .map(|t| li![{ format!("({}) {}: {}", t.id, t.title.clone(), if t.status == 0 { "Not done" } else { "Done" }) }])
         .collect();
 
-    h1![{ "Tasks" }, ul![tasks,],]
+        div![
+            h1!["Tasks"],
+            ul![tasks,],
+        ]
 }
 
 fn init(_url: Url, orders: &mut impl Orders<Msg>) -> Model {
@@ -54,13 +50,7 @@ fn init(_url: Url, orders: &mut impl Orders<Msg>) -> Model {
             .json::<JsonApiResponse>()
             .await;
 
-        match data {
-            Ok(res) => Msg::FetchedTasks(Some(res)),
-            Err(err) => {
-                log!(format!("Error fetching: {:?}", err));
-                Msg::FetchedTasks(None)
-            },
-        }
+        Msg::FetchedTasks(data)
     });
 
     Model { tasks: vec![] }
