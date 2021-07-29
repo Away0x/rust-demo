@@ -1,0 +1,19 @@
+[package]
+name = "grrs"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# 基于 clap 构建，提供 dervice 宏来为 struct 生成 clap 代码
+structopt = "0.3.21"
+anyhow = "1.0"
+
+[dev-dependencies]
+# 帮助运行主二进制文件并且查看其行为
+assert_cmd = "1.0"
+# 断言
+predicates = "2.0"
+# 可帮助测试文件相关服务，如生成临时文件
+assert_fs = "1.0"
