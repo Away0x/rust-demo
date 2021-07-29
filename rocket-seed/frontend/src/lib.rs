@@ -29,13 +29,19 @@ fn view(model: &Model) -> Node<Msg> {
     let tasks: Vec<Node<Msg>> = model
         .tasks
         .iter()
-        .map(|t| li![{ format!("({}) {}: {}", t.id, t.title.clone(), if t.status == 0 { "Not done" } else { "Done" }) }])
+        .map(|t| {
+            li![{
+                format!(
+                    "({}) {}: {}",
+                    t.id,
+                    t.title.clone(),
+                    if t.status == 0 { "Not done" } else { "Done" }
+                )
+            }]
+        })
         .collect();
 
-        div![
-            h1!["Tasks"],
-            ul![tasks,],
-        ]
+    div![h1!["Tasks"], ul![tasks,],]
 }
 
 fn init(_url: Url, orders: &mut impl Orders<Msg>) -> Model {

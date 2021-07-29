@@ -19,7 +19,7 @@ fn not_found() -> Value {
 // 不使用 connection pool
 #[get("/tasks1")]
 fn tasks_get1() -> Json<JsonApiResponse> {
-    let mut response = JsonApiResponse { data: vec![], };
+    let mut response = JsonApiResponse { data: vec![] };
     let conn = establish_connection();
 
     for task in query_task(&conn, None) {
@@ -30,7 +30,7 @@ fn tasks_get1() -> Json<JsonApiResponse> {
         };
         response.data.push(api_task);
     }
-    
+
     Json(response)
 }
 
@@ -38,7 +38,7 @@ fn tasks_get1() -> Json<JsonApiResponse> {
 #[get("/tasks2")]
 async fn tasks_get2(conn: DbConn) -> Json<JsonApiResponse> {
     conn.run(|c| {
-        let mut response = JsonApiResponse { data: vec![], };
+        let mut response = JsonApiResponse { data: vec![] };
 
         for task in query_task(&c, None) {
             let api_task = rocket_seed::Task {
