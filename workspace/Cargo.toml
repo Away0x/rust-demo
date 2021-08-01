@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "adder", # 二进制 crate
+    "add-one", # 库 crate
+    "add-two", # 库 crate
+]
