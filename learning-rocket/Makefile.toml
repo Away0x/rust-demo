@@ -1,0 +1,22 @@
+[tasks.watch]
+description = "Watch files and recompile the project on change"
+command = "cargo"
+args = ["run"]
+watch = { why = true, watch = ["./src/"] }
+
+[tasks.build_release]
+description = "Build project with release mode"
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.fmt]
+description = "Format with rustfmt"
+install_crate = { rustup_component_name = "rustfmt", binary = "rustfmt", test_arg = "-V" }
+command = "cargo"
+args = ["fmt"]
+
+[tasks.lint]
+description = "Lint with Clippy"
+install_crate = { rustup_component_name = "clippy", binary = "cargo-clippy", test_arg = "--help" }
+command = "cargo"
+args = ["clippy", "--all-features", "--", "--deny", "warnings", "--deny", "clippy::pedantic", "--deny", "clippy::nursery"]
