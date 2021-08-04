@@ -1,9 +1,11 @@
 use rocket::{
-    get,
+    get, post,
     http::{Cookie, CookieJar, Status},
     request::{FromRequest, Outcome, Request},
     serde::{json::Json, Deserialize},
+    form::Form,
     State,
+    fs::TempFile,
 };
 
 use super::config;
@@ -110,7 +112,20 @@ pub struct UserData {
     age: u16,
 }
 
-#[get("/json", format = "application/json", data = "<user>")]
+// format: 'json' 只允许 content-type=application/json 的请求
+#[post("/json", /* format = "json", */ data = "<user>")]
 pub fn body_json(user: Json<UserData>) -> String {
+    format!("{} {}", user.name, user.age)
+}
+
+#[derive(Debug, FromForm)]
+pub struct UserFormData {
+    name: String,
+    age: u16,
+}
+
+// content-type = x-www-form-urlencoded
+#[post("/form", data = "<user>")]
+pub fn body_form(user: Form<UserFormData>) -> String {
     format!("{} {}", user.name, user.age)
 }
