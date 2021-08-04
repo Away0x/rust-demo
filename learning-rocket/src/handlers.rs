@@ -1,11 +1,15 @@
+use std::path::{Path, PathBuf};
+
 use rocket::{
-    get, post,
-    http::{Cookie, CookieJar, Status},
+    data::{ ToByteUnit},
+    form::Form,
+    fs::{NamedFile, TempFile},
+    get,
+    http::{ContentType, Cookie, CookieJar, Status},
+    post,
     request::{FromRequest, Outcome, Request},
     serde::{json::Json, Deserialize},
-    form::Form,
     State,
-    fs::TempFile,
 };
 
 use super::config;
@@ -128,4 +132,25 @@ pub struct UserFormData {
 #[post("/form", data = "<user>")]
 pub fn body_form(user: Form<UserFormData>) -> String {
     format!("{} {}", user.name, user.age)
+}
+
+#[derive(Debug, FromForm)]
+pub struct UploadForm<'r> {
+    #[field(validate = ext(ContentType::JPEG))]
+    #[field(validate = len(..32.mebibytes()))]
+    image: TempFile<'r>,
+    file_name: String,
+}
+
+#[post("/upload", data = "<data>")]
+pub async fn upload(mut data: Form<UploadForm<'_>>) -> std::io::Result<String> {
+    let file_name = data.file_name.clone();
+    let file_path = &Path::new("upload/").join(file_name);
+    data.image.persist_to(file_path).await?;
+    Ok(file_path.to_str().unwrap_or_default().to_string())
+}
+
+#[get("/file/<file..>")]
+pub async fn get_file(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("public/").join(file)).await.ok()
 }

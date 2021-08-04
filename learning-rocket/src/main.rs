@@ -24,6 +24,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 handlers::test_cookies,
                 handlers::body_json,
                 handlers::body_form,
+                handlers::get_file,
+                handlers::upload,
             ],
         )
         .attach(AdHoc::config::<config::Config>())
