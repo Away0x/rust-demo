@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use rocket::{
-    data::{ ToByteUnit},
+    data::ToByteUnit,
     form::Form,
     fs::{NamedFile, TempFile},
     get,
@@ -142,8 +142,8 @@ pub struct UploadForm<'r> {
     file_name: String,
 }
 
-#[post("/upload", data = "<data>")]
-pub async fn upload(mut data: Form<UploadForm<'_>>) -> std::io::Result<String> {
+#[post("/upload-with-tempfile", data = "<data>")]
+pub async fn upload_with_tempfile(mut data: Form<UploadForm<'_>>) -> std::io::Result<String> {
     let file_name = data.file_name.clone();
     let file_path = &Path::new("upload/").join(file_name);
     data.image.persist_to(file_path).await?;

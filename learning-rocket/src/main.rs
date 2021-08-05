@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 handlers::body_json,
                 handlers::body_form,
                 handlers::get_file,
-                handlers::upload,
+                handlers::upload_with_tempfile,
             ],
         )
         .attach(AdHoc::config::<config::Config>())
