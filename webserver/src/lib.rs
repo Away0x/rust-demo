@@ -7,12 +7,12 @@ type Job = Box<dyn FnOnce() + Send + 'static>;
 
 enum Message {
     NewJob(Job),
-    Terminate,
+    Terminate, // 终止任务
 }
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Message>,
+    sender: mpsc::Sender<Message>, // 通道 (发送者)
 }
 
 impl ThreadPool {
@@ -21,11 +21,14 @@ impl ThreadPool {
         assert!(size > 0);
 
         let (sender, receiver) = mpsc::channel();
+        // Mutex 包装 receiver, 从而使其能够在多个线程中共享
         let receiver = Arc::new(Mutex::new(receiver));
 
         let mut workers = Vec::with_capacity(size);
 
         for id in 0..size {
+            // 将通道的接收端传递给 worker
+            // 所有线程共享一个 receiver
             workers.push(Worker::new(id, Arc::clone(&receiver)));
         }
 
@@ -40,7 +43,6 @@ impl ThreadPool {
             F: FnOnce() + Send + 'static
     {
         let job = Box::new(f);
-
         self.sender.send(Message::NewJob(job)).unwrap();
     }
 }
@@ -67,27 +69,24 @@ impl Drop for ThreadPool {
 
 struct Worker {
     id: usize,
-    thread: Option<thread::JoinHandle<()>>,
+    thread: Option<thread::JoinHandle<()>>, // 存储线程
 }
 
+// worker 会从线程池中接收任务并执行
 impl Worker {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) ->
-        Worker {
-
-        let thread = thread::spawn(move ||{
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker {
+        let thread = thread::spawn(move || {
             loop {
                 let message = receiver.lock().unwrap().recv().unwrap();
 
                 match message {
                     Message::NewJob(job) => {
                         println!("Worker {} got a job; executing.", id);
-
                         job();
                     },
                     Message::Terminate => {
                         println!("Worker {} was told to terminate.", id);
-
-                        break;
+                        break; // 跳出循环, 终止执行
                     },
                 }
             }
