@@ -1,0 +1,14 @@
+[package]
+name = "httpie"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1" # 错误处理
+clap = "3.0.0-beta.4" # 命令行解析
+colored = "2" # 命令终端多彩显示
+jsonxf = "1.1" # JSON pretty print 格式化
+mime = "0.3" # 处理 mime 类型
+reqwest = { version = "0.11", features = ["json"] } # HTTP 客户端
+tokio = { version = "1", features = ["full"] } # 异步处理库
+syntect = "4" # 语法高亮
