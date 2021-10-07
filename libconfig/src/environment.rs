@@ -3,10 +3,11 @@ use std::str::FromStr;
 
 use self::Environment::*;
 use crate::conf::ConfigError;
+use serde::Deserialize;
 
 pub const CONFIG_ENV: &str = "POEM_ENV";
 
-#[derive(Hash, PartialEq, Eq, Debug, Clone, Copy)]
+#[derive(Hash, PartialEq, Eq, Debug, Clone, Copy, Deserialize)]
 pub enum Environment {
     /// The development environment. for Debug mode.
     Development,
@@ -25,13 +26,15 @@ impl Environment {
     #[allow(dead_code)]
     pub(crate) const VALID: &'static str = "development, staging, production";
 
+    /// 获取当前的 Environment
     pub fn active() -> Result<Environment, ConfigError> {
         match env::var(CONFIG_ENV) {
             Ok(s) => s.parse().map_err(|_| ConfigError::BadEnv(s)),
-            // for Debug mode
+            // 没有设置 CONFIG_ENV 时, 走以下分支
+            // for Debug mode, "cargo build && target/debug/main"
             #[cfg(debug_assertions)]
             _ => Ok(Development),
-            // for Release mode
+            // for Release mode, "cargo build --release && target/release/main"
             #[cfg(not(debug_assertions))]
             _ => Ok(Production),
         }
@@ -53,6 +56,7 @@ impl Environment {
     }
 }
 
+/// 定义 "".parse<Environment>() 的行为
 impl FromStr for Environment {
     type Err = ();
 
@@ -69,6 +73,7 @@ impl FromStr for Environment {
     }
 }
 
+/// 定义 print 时的行为
 impl fmt::Display for Environment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {

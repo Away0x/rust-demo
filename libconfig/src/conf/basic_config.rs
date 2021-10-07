@@ -1,8 +1,9 @@
 use super::*;
+use serde::Deserialize;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct BasicConfig {
-    pub environment: super::Environment,
+    pub environment: Environment,
     pub address: String,
     pub port: u16,
     pub database: Option<Database>,
@@ -12,11 +13,11 @@ pub struct BasicConfig {
 }
 
 impl BasicConfig {
-    pub fn new(env: super::Environment) -> Self {
+    pub fn new(env: Environment) -> Self {
         Self::default(env)
     }
 
-    pub(crate) fn default(env: super::Environment) -> Self {
+    pub(crate) fn default(env: Environment) -> Self {
         let default_workers = (num_cpus::get() * 2) as u16;
         let default_config = BasicConfig {
             environment: Development,
@@ -48,7 +49,8 @@ impl BasicConfig {
         self.root_path = Some(path.as_ref().into());
     }
 
-    pub(crate) fn default_from<P>(env: super::Environment, path: P) -> super::Result<Self>
+    /// 设置 file path 的 default
+    pub(crate) fn default_from<P>(env: Environment, path: P) -> Result<Self>
     where
         P: AsRef<Path>,
     {
@@ -73,7 +75,7 @@ impl PartialEq for BasicConfig {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Database {
     pub(crate) adapter: String,
     pub(crate) db_name: String,
