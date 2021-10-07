@@ -18,11 +18,11 @@ pub enum Environment {
 
 impl Environment {
     /// List of all of the possible environments.
-    #[allow(dead_code)] 
+    #[allow(dead_code)]
     pub(crate) const ALL: [Environment; 3] = [Development, Staging, Production];
 
     /// String of all valid environments.
-    #[allow(dead_code)] 
+    #[allow(dead_code)]
     pub(crate) const VALID: &'static str = "development, staging, production";
 
     pub fn active() -> Result<Environment, ConfigError> {
@@ -56,15 +56,7 @@ impl Environment {
 impl FromStr for Environment {
     type Err = ();
 
-    /// Parsing a production environment:
-    ///
-    /// ```rust
-    /// let env = "p".parse::<Environment>();
-    /// assert_eq!(env.unwrap(), Environment::Production);
-    ///
-    /// let env = "prod".parse::<Environment>();
-    /// assert_eq!(env.unwrap(), Environment::Production);
-    /// ```
+    /// Parsing a production environment
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let env = match s {
             "d" | "dev" | "devel" | "development" => Development,
@@ -84,5 +76,19 @@ impl fmt::Display for Environment {
             Staging => write!(f, "staging"),
             Production => write!(f, "production"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Environment;
+
+    #[test]
+    fn parse_env() {
+        let env = "p".parse::<Environment>();
+        assert_eq!(env.unwrap(), Environment::Production);
+
+        let env = "prod".parse::<Environment>();
+        assert_eq!(env.unwrap(), Environment::Production);
     }
 }
