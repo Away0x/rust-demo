@@ -1,5 +1,6 @@
 use super::*;
 use serde::Deserialize;
+use toml::{map::Map, Value};
 
 #[derive(Debug, Deserialize)]
 pub struct BasicConfig {
@@ -66,6 +67,27 @@ impl BasicConfig {
 
         config.config_file_path = Some(config_file_path);
         Ok(config)
+    }
+
+    pub(crate) fn parse_toml_map(&mut self, kv_pairs: &Map<String, Value>) {
+        for (k, v) in kv_pairs {
+            match k.as_str() {
+                "address" => self.address = v.to_string(),
+                "port" => match v.clone().try_into::<u16>() {
+                    Ok(v) => self.port = v,
+                    Err(_) => continue,
+                },
+                "workers" => match v.clone().try_into::<u16>() {
+                    Ok(v) => self.workers = Some(v),
+                    Err(_) => continue,
+                },
+                "database" => match v.clone().try_into::<Database>() {
+                    Ok(v) => self.database = Some(v),
+                    Err(_) => continue,
+                },
+                _ => continue,
+            }
+        }
     }
 }
 

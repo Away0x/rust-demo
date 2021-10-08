@@ -58,7 +58,7 @@ impl PoemConfig {
             None => panic!("set(): {} config is missing.", env),
         }
     }
-    
+
     /// 获取环境配置默认值 (设置配置路径信息)
     pub(crate) fn active_default_from(filename: Option<&Path>) -> super::Result<PoemConfig> {
         let mut defaults = HashMap::new();
@@ -121,20 +121,11 @@ impl PoemConfig {
                     ))
                 }
             };
-            // TODO: 需要把值设置到 config 里面 (这里使用最 low 的遍历设置, 后期优化)
             let default_env_config = match entry.parse::<Environment>() {
                 Ok(env) => config.get_mut(env),
                 Err(_) => continue,
             };
-
-            for (k, v) in kv_pairs {
-                match k.as_str() {
-                    "address" => default_env_config.address = v.to_string(),
-                    "port" => default_env_config.port = v.clone().try_into::<u16>().unwrap(),
-                    _ => continue,
-                }
-                
-            }
+            default_env_config.parse_toml_map(kv_pairs);
         }
 
         Ok(config)
