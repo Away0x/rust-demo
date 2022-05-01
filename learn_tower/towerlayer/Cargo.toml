@@ -1,0 +1,11 @@
+[package]
+name = "towerlayer"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pin-project = "1.0.8"
+tokio = { version = "1.12.0", features = ["full"] }
+tower = "0.4.9"
