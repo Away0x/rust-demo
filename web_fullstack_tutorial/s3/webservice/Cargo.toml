@@ -1,0 +1,22 @@
+[package]
+name = "webservice"
+version = "0.1.0"
+edition = "2021"
+default-run = "teacher-service"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "base-service"
+
+[[bin]]
+name = "teacher-service"
+
+[dependencies]
+# Actix web framework and async run-time
+actix-web = "3.1.0"
+actix-rt = "1.1.1"
+# Data serialization library
+serde = { version = "1.0.110", features = ["derive"] }
+# Time library
+chrono = { version = "0.4.11", features = ["serde"] }
