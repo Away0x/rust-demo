@@ -6,8 +6,9 @@ use actix_web::{web, HttpResponse};
 
 pub async fn get_courses_for_teacher(
     app_state: web::Data<AppState>,
-    web::Path(teacher_id): web::Path<i32>,
+    params: web::Path<i32>,
 ) -> Result<HttpResponse, MyError> {
+    let teacher_id = params.into_inner();
     get_courses_for_teacher_db(&app_state.db, teacher_id)
         .await
         .map(|courses| HttpResponse::Ok().json(courses))
@@ -15,8 +16,9 @@ pub async fn get_courses_for_teacher(
 
 pub async fn get_course_details(
     app_state: web::Data<AppState>,
-    web::Path((teacher_id, course_id)): web::Path<(i32, i32)>,
+    params: web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, MyError> {
+    let (teacher_id, course_id) = params.into_inner();
     get_course_details_db(&app_state.db, teacher_id, course_id)
         .await
         .map(|course| HttpResponse::Ok().json(course))
@@ -33,8 +35,9 @@ pub async fn post_new_course(
 
 pub async fn delete_course(
     app_state: web::Data<AppState>,
-    web::Path((teacher_id, course_id)): web::Path<(i32, i32)>,
+    params: web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, MyError> {
+    let (teacher_id, course_id) = params.into_inner();
     delete_course_db(&app_state.db, teacher_id, course_id)
         .await
         .map(|resp| HttpResponse::Ok().json(resp))
@@ -43,8 +46,9 @@ pub async fn delete_course(
 pub async fn update_course_details(
     app_state: web::Data<AppState>,
     update_course: web::Json<UpdateCourse>,
-    web::Path((teacher_id, course_id)): web::Path<(i32, i32)>,
+    params: web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, MyError> {
+    let (teacher_id, course_id) = params.into_inner();
     update_course_details_db(&app_state.db, teacher_id, course_id, update_course.into())
         .await
         .map(|course| HttpResponse::Ok().json(course))
@@ -56,7 +60,7 @@ mod tests {
     use actix_web::http::StatusCode;
     use actix_web::ResponseError;
     use dotenv::dotenv;
-    use sqlx::postgres::PgPool;
+    use sqlx::postgres::PgPoolOptions;
     use std::env;
     use std::sync::Mutex;
 
@@ -64,7 +68,7 @@ mod tests {
     async fn get_all_courses_success() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
@@ -82,14 +86,14 @@ mod tests {
     async fn get_course_detail_success() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
             db: pool,
         });
 
-        let params: web::Path<(i32, i32)> = web::Path::from((1, 1));
+        let params: web::Path<(i32, i32)> = web::Path::from((1, 2));
         let resp = get_course_details(app_state, params).await.unwrap();
         assert_eq!(resp.status(), StatusCode::OK);
     }
@@ -98,7 +102,7 @@ mod tests {
     async fn get_course_detail_failure() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
@@ -113,12 +117,12 @@ mod tests {
         }
     }
 
-    // #[ignore = "No need to test every time"]
+    #[ignore = "No need to test every time"]
     #[actix_rt::test]
     async fn post_course_success() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
@@ -146,7 +150,7 @@ mod tests {
     async fn update_course_success() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
@@ -170,12 +174,12 @@ mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
-    // #[ignore]
+    #[ignore]
     #[actix_rt::test]
     async fn delete_course_success() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),
@@ -191,7 +195,7 @@ mod tests {
     async fn delete_course_failure() {
         dotenv().ok();
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-        let pool: PgPool = PgPool::new(&database_url).await.unwrap();
+        let pool = PgPoolOptions::new().connect(&database_url).await.unwrap();
         let app_state: web::Data<AppState> = web::Data::new(AppState {
             health_check_response: "".to_string(),
             visit_count: Mutex::new(0),

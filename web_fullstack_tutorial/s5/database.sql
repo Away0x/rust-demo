@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS teacher;
 
 CREATE TABLE course (
     id serial PRIMARY KEY,
@@ -11,6 +12,14 @@ CREATE TABLE course (
     price INT,
     language varchar(30),
     level varchar(30),
+    time TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE teacher (
+    id serial PRIMARY KEY,
+    name varchar(140) NOT NULL,
+    picture_url varchar(200) NOT NULL,
+    profile varchar(2000) NOT NULL,
     time TIMESTAMP DEFAULT NOW()
 );
 

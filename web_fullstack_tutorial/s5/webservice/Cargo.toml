@@ -8,20 +8,21 @@ name = "service"
 
 [dependencies]
 # Actix web framework and run-time
-"actix-web" = "3.3.3"
-"actix-rt" = "1.1.1"
+actix-web = "4.0.0-rc.2"
+actix-rt = "2.6.0"
+actix-cors = "0.6.0-beta.10"
 
 # Environment variable access libraries
 dotenv = "0.15.0"
 
 # Postgres access library
-sqlx = { version = "0.3.5", default_features = false, features = ["postgres", "runtime-tokio", "macros", "chrono"]}
+sqlx = { version = "0.5.10", default_features = false, features = ["postgres", "runtime-tokio-rustls", "macros", "chrono"]}
 
 # Data serialization library
-serde = { version = "1.0.110", features = ["derive"] }
+serde = { version = "1.0.132", features = ["derive"] }
 
 # Other utils
-chrono = {version = "0.4.11", features = ["serde"]}
+chrono = {version = "0.4.19", features = ["serde"]}
 
 # Openssl for build (if openssl is not already installed on the dev server)
-openssl = { version = "0.10", features = ["vendored"] }
+openssl = { version = "0.10.38", features = ["vendored"] }
