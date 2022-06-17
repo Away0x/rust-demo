@@ -1,8 +1,8 @@
-use std::str::FromStr;
 use anyhow::{anyhow, Result};
+use std::str::FromStr;
 
 /// 命令行中的 key=value 可以通过 parse_kv_pair 解析成 KvPair 结构
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct KvPair {
     pub k: String,
     pub v: String,

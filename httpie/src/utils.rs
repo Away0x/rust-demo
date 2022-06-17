@@ -4,7 +4,7 @@ use mime::Mime;
 use reqwest::{header, Response};
 use syntect::{
     easy::HighlightLines,
-    highlighting::{Style, ThemeSet},
+    highlighting::ThemeSet,
     parsing::SyntaxSet,
     util::{as_24_bit_terminal_escaped, LinesWithEndings},
 };
@@ -18,7 +18,6 @@ pub async fn print_resp(resp: Response) -> Result<()> {
     print_body(mime, &body);
     Ok(())
 }
-
 
 // 打印服务器版本号 + 状态码
 fn print_status(resp: &Response) {
@@ -61,8 +60,9 @@ fn print_syntect(s: &str, ext: &str) {
     let syntax = ps.find_syntax_by_extension(ext).unwrap();
     let mut h = HighlightLines::new(syntax, &ts.themes["base16-ocean.dark"]);
     for line in LinesWithEndings::from(s) {
-        let ranges: Vec<(Style, &str)> = h.highlight(line, &ps);
-        let escaped = as_24_bit_terminal_escaped(&ranges[..], true);
-        print!("{}", escaped);
+        if let Ok(ranges) = h.highlight_line(line, &ps) {
+            let escaped = as_24_bit_terminal_escaped(&ranges[..], true);
+            print!("{}", escaped);
+        }
     }
 }

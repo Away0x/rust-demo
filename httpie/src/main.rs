@@ -1,22 +1,20 @@
 use anyhow::Result;
-use clap::{AppSettings, Clap};
+use clap::{Args, Parser, Subcommand};
 use reqwest::{header, Client, Url};
 use std::collections::HashMap;
-
 mod models;
 mod utils;
 
 /// A naive httpie implementation with Rust, can you imagine how easy it is?
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(version = "1.0", author = "Tong wu <away0x@gmail.com>")]
-#[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
     #[clap(subcommand)]
     subcmd: SubCommand,
 }
 
 // 子命令分别对应不同的 HTTP 方法，目前只支持 get / post
-#[derive(Clap, Debug)]
+#[derive(Subcommand, Debug)]
 enum SubCommand {
     Get(Get),
     Post(Post),
@@ -25,10 +23,10 @@ enum SubCommand {
 // get 子命令
 
 /// feed get with an url and we will retrieve the response for you
-#[derive(Clap, Debug)]
+#[derive(Args, Debug)]
 struct Get {
     /// HTTP 请求的 URL
-    #[clap(parse(try_from_str = parse_url))]
+    #[clap(value_parser = parse_url)]
     url: String,
 }
 
@@ -36,13 +34,13 @@ struct Get {
 
 /// feed post with an url and optional key=value pairs. We will post the data
 /// as JSON, and retrieve the response for you
-#[derive(Clap, Debug)]
+#[derive(Args, Debug)]
 struct Post {
     /// HTTP 请求的 URL
-    #[clap(parse(try_from_str = parse_url))]
+    #[clap(value_parser = parse_url)]
     url: String,
     /// HTTP 请求的 body
-    #[clap(parse(try_from_str=parse_kv_pair))]
+    #[clap(value_parser = parse_kv_pair)]
     body: Vec<models::KvPair>,
 }
 
@@ -74,7 +72,6 @@ async fn post(client: Client, args: &Post) -> Result<()> {
     Ok(utils::print_resp(resp).await?)
 }
 
-
 /// 程序的入口函数，因为在 http 请求时我们使用了异步处理，所以这里引入 tokio
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -83,9 +80,7 @@ async fn main() -> Result<()> {
     // 为我们的 http 客户端添加一些缺省的 HTTP 头
     headers.insert("X-POWERED-BY", "Rust".parse()?);
     headers.insert(header::USER_AGENT, "Rust Httpie".parse()?);
-    let client = reqwest::Client::builder()
-        .default_headers(headers)
-        .build()?;
+    let client = reqwest::Client::builder().default_headers(headers).build()?;
     let result = match opts.subcmd {
         SubCommand::Get(ref args) => get(client, args).await?,
         SubCommand::Post(ref args) => post(client, args).await?,
